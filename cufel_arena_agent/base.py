@@ -100,7 +100,7 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
     ----
     load_current_data(curr_date)
         加载当前日期所需的数据（抽象方法，必须实现）
-    get_current_holdings(curr_date, feedback=None)
+    get_current_holdings(curr_date, feedback=None, theta=None)
         返回当前日期的持仓（抽象方法，必须实现）
     get_daily_holdings(start_date, end_date)
         返回日期范围内的每日持仓（可选重写）
@@ -181,7 +181,8 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
     @abstractmethod
     def get_current_holdings(self,
                              curr_date: Annotated[str, "current date in 'YYYY-MM-DD'"],
-                             feedback: Annotated[str, "FOFAgent feedback information"] = None) -> Dict[str, Dict[str, float]]:
+                             feedback: Annotated[str, "FOFAgent feedback information"] = None,
+                             theta: Annotated[float, "风险偏好系数"] = None) -> Dict[str, Dict[str, float]]:
         """
         获取当前日期的持仓
 
@@ -193,6 +194,8 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
             当前日期，格式为 'YYYY-MM-DD'
         feedback : str, optional
             来自 FOF Agent 的反馈信息（如果有）
+        theta : float, optional
+            风险偏好系数
 
         Returns
         -------
@@ -219,7 +222,8 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
 
     def get_daily_holdings(self,
                            start_date: Annotated[str, "start date in 'YYYY-MM-DD'"],
-                           end_date: Annotated[str, "end date in 'YYYY-MM-DD'"]) -> Dict[str, Dict[str, float]]:
+                           end_date: Annotated[str, "end date in 'YYYY-MM-DD'"],
+                           theta: Annotated[float, "风险偏好系数"] = None) -> Dict[str, Dict[str, float]]:
         """
         获取日期范围内的每日持仓
 
@@ -232,6 +236,8 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
             开始日期，格式为 'YYYY-MM-DD'
         end_date : str
             结束日期，格式为 'YYYY-MM-DD'
+        theta : float, optional
+            风险偏好系数
 
         Returns
         -------
@@ -250,7 +256,7 @@ class ETFAgentBase(ABC, metaclass=SignatureMeta):
 
         for single_date in date_range:
             date_str = single_date.strftime('%Y-%m-%d')
-            holdings = self.get_current_holdings(date_str)
+            holdings = self.get_current_holdings(date_str, theta=theta)
             if holdings and date_str in holdings:
                 daily_holdings[date_str] = holdings[date_str]
 
@@ -298,7 +304,7 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
     ----
     load_current_data(curr_date)
         加载当前日期所需的数据（抽象方法，必须实现）
-    get_current_holdings(curr_date, feedback=None)
+    get_current_holdings(curr_date, feedback=None, theta=None)
         返回当前日期的持仓（抽象方法，必须实现）
     get_daily_holdings(start_date, end_date)
         返回日期范围内的每日持仓（可选重写）
@@ -369,7 +375,8 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
     @abstractmethod
     def get_current_holdings(self,
                              curr_date: Annotated[str, "current date in 'YYYY-MM-DD'"],
-                             feedback: Annotated[str, "Other FOFAgent feedback information"] = None) -> Dict[str, Dict[str, float]]:
+                             feedback: Annotated[str, "Other FOFAgent feedback information"] = None,
+                             theta: Annotated[float, "风险偏好系数"] = None) -> Dict[str, Dict[str, float]]:
         """
         获取当前日期的持仓（对 ETF Agents 的配置权重）
 
@@ -381,6 +388,8 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
             当前日期，格式为 'YYYY-MM-DD'
         feedback : str, optional
             来自其他 FOF Agent 的反馈信息（如果有）
+        theta : float, optional
+            风险偏好系数
 
         Returns
         -------
@@ -407,7 +416,8 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
 
     def get_daily_holdings(self,
                            start_date: Annotated[str, "start date in 'YYYY-MM-DD'"],
-                           end_date: Annotated[str, "end date in 'YYYY-MM-DD'"]) -> Dict[str, Dict[str, float]]:
+                           end_date: Annotated[str, "end date in 'YYYY-MM-DD'"],
+                           theta: Annotated[float, "风险偏好系数"] = None) -> Dict[str, Dict[str, float]]:
         """
         获取日期范围内的每日持仓
 
@@ -420,6 +430,8 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
             开始日期，格式为 'YYYY-MM-DD'
         end_date : str
             结束日期，格式为 'YYYY-MM-DD'
+        theta : float, optional
+            风险偏好系数
 
         Returns
         -------
@@ -433,7 +445,7 @@ class FOFAgentBase(ABC, metaclass=SignatureMeta):
 
         for single_date in date_range:
             date_str = single_date.strftime('%Y-%m-%d')
-            holdings = self.get_current_holdings(date_str)
+            holdings = self.get_current_holdings(date_str, theta=theta)
             if holdings and date_str in holdings:
                 daily_holdings[date_str] = holdings[date_str]
 

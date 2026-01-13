@@ -43,7 +43,7 @@ class EqualWeightETFAgent(ETFAgentBase):
         '''
         return db.fetch(sql)
 
-    def get_current_holdings(self, curr_date: str, feedback: str = None):
+    def get_current_holdings(self, curr_date: str, feedback: str = None, theta: float=None):
         """
         获取当前日期的持仓
 

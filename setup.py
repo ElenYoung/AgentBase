@@ -29,19 +29,21 @@ setup(
     version=get_version(),
     author="CUFEL-Q Arena Team",
     author_email="arena@cufel.edu.cn",
-    description="CUFEL-Q Arena 平台智能体开发 SDK",
+    description="CUFEL-Q Arena 平台智能体开发 SDK - 支持 ETF Agent 和 FOF Agent 开发",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/cufel-q/arena-agent-sdk",
     project_urls={
         "Documentation": "https://arena.cufel.edu.cn/docs",
         "Bug Tracker": "https://github.com/cufel-q/arena-agent-sdk/issues",
+        "Source": "https://github.com/cufel-q/arena-agent-sdk",
     },
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*", "examples", "examples.*"]),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: Financial and Insurance Industry",
+        "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
@@ -53,23 +55,38 @@ setup(
         "Programming Language :: Python :: 3.13",
         "Topic :: Office/Business :: Financial :: Investment",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Typing :: Typed",
     ],
     python_requires=">=3.8",
     install_requires=[
         "pandas>=1.3.0",
         "numpy>=1.20.0",
-        "quantchdb>=0.1.0"
     ],
     extras_require={
-        "postgres": ["psycopg2-binary>=2.9.0"],
-        "dotenv": ["python-dotenv>=0.19.0"],
+        "clickhouse": [
+            "quantchdb>=0.1.0",
+        ],
+        "postgres": [
+            "psycopg2-binary>=2.9.0",
+        ],
+        "dotenv": [
+            "python-dotenv>=0.19.0",
+        ],
         "dev": [
             "pytest>=6.0.0",
             "pytest-cov>=2.0.0",
             "black>=21.0.0",
             "flake8>=3.9.0",
+            "mypy>=0.900",
+        ],
+        "etf": [
+            "quantchdb>=0.1.0",
+        ],
+        "fof": [
+            "psycopg2-binary>=2.9.0",
         ],
         "all": [
+            "quantchdb>=0.1.0",
             "psycopg2-binary>=2.9.0",
             "python-dotenv>=0.19.0",
         ],
@@ -78,11 +95,17 @@ setup(
         "quantitative-finance",
         "trading",
         "etf",
+        "fof",
         "portfolio",
         "investment",
         "arena",
         "agent",
+        "clickhouse",
+        "postgresql",
     ],
+    package_data={
+        "cufel_arena_agent": ["py.typed"],
+    },
     include_package_data=True,
     zip_safe=False,
 )

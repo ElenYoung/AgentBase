@@ -56,7 +56,7 @@ ConfigLoader : class
 - 兼容: Python >= 3.8
 """
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "CUFEL-Q Arena Team"
 
 # 核心基类
