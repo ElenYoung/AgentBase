@@ -5,14 +5,26 @@ FOF Agent 示例 - 动态筛选策略
 策略逻辑：根据 ETF Agents 的历史表现（夏普比率）动态筛选并配置权重。
 
 特点：
+- 数据库配置在类定义时指定，而不是实例化时传递
 - 不需要预先指定 target_agents，而是从数据库动态获取所有可用的 ETF Agents
 - 根据历史表现筛选表现最好的 Agents
-- 使用真实数据库连接
 """
 
 import os
 from dotenv import load_dotenv
-from cufel_arena_agent import FOFAgentBase, ConfigLoader
+from cufel_arena_agent import FOFAgentBase, ArenaDataClient
+
+# 加载环境变量（在类定义前加载）
+load_dotenv()
+
+# 在类定义时配置数据库
+DB_CONFIG = {
+    'host': os.getenv('POSTGRES_HOST'),
+    'port': os.getenv('POSTGRES_PORT'),
+    'user': os.getenv('POSTGRES_USER'),
+    'password': os.getenv('POSTGRES_PASSWORD'),
+    'database': os.getenv('POSTGRES_DB')
+}
 
 
 class DynamicFOFAgent(FOFAgentBase):
@@ -20,9 +32,10 @@ class DynamicFOFAgent(FOFAgentBase):
     动态筛选 FOF Agent
 
     根据历史表现动态筛选 ETF Agents，选择夏普比率最高的进行投资。
+    数据库配置在类定义时确定，无需在实例化时传递。
     """
 
-    def __init__(self, top_n: int = 3, lookback_days: int = 30, db_config=None, **kwargs):
+    def __init__(self, top_n: int = 3, lookback_days: int = 30, **kwargs):
         """
         初始化 Agent
 
@@ -32,12 +45,10 @@ class DynamicFOFAgent(FOFAgentBase):
             选择表现最好的前 N 个 ETF Agents
         lookback_days : int
             回看天数，用于计算历史表现
-        db_config : dict, optional
-            PostgreSQL 数据库配置
         """
         super().__init__(
             name="DynamicFOF",
-            db_config=db_config,
+            db_config=DB_CONFIG,
             target_agents=None,  # 不预先指定，动态获取
             **kwargs
         )
@@ -46,10 +57,10 @@ class DynamicFOFAgent(FOFAgentBase):
 
     def load_current_data(self, curr_date: str):
         """
-        加载当前日期的数据；建议设计持仓缓存机制，将跑完的持仓存储在一个文件内，下次获取改日持仓时直接从文件中读取，避免重复计算相同日期的持仓
+        加载当前日期的数据
 
-
-        动态获取所有 ETF Agents 的历史收益率数据
+        建议设计持仓缓存机制，将跑完的持仓存储在一个文件内，
+        下次获取该日持仓时直接从文件中读取，避免重复计算相同日期的持仓。
         """
         from datetime import datetime, timedelta
 
@@ -69,11 +80,20 @@ class DynamicFOFAgent(FOFAgentBase):
 
         return returns_df
 
-    def get_current_holdings(self, curr_date: str, feedback: str = None, theta: float=None):
+    def get_current_holdings(self, curr_date: str, feedback: str = None, theta: float = None):
         """
         获取当前日期的持仓
 
         根据历史表现筛选最优的 ETF Agents
+
+        Parameters
+        ----------
+        curr_date : str
+            当前日期，格式为 'YYYY-MM-DD'
+        feedback : str, optional
+            来自其他 FOF Agent 的反馈信息
+        theta : float, optional
+            风险偏好系数
         """
         import numpy as np
 
@@ -117,18 +137,6 @@ class DynamicFOFAgent(FOFAgentBase):
 # ==================== 使用示例 ====================
 
 if __name__ == "__main__":
-    # 加载环境变量
-    load_dotenv()
-
-    # 从环境变量读取数据库配置
-    db_config = {
-        'host': os.getenv('POSTGRES_HOST'),
-        'port': os.getenv('POSTGRES_PORT'),
-        'user': os.getenv('POSTGRES_USER'),
-        'password': os.getenv('POSTGRES_PASSWORD'),
-        'database': os.getenv('POSTGRES_DB')
-    }
-
     print("=" * 50)
     print("FOF Agent 示例 - 动态筛选策略")
     print("=" * 50)
@@ -136,8 +144,7 @@ if __name__ == "__main__":
     # 测试数据库连接
     print("\n1. 测试数据库连接...")
     try:
-        from cufel_arena_agent import ArenaDataClient
-        client = ArenaDataClient(db_config=db_config)
+        client = ArenaDataClient(db_config=DB_CONFIG)
 
         # 获取所有 ETF Agents
         all_agents = client.get_all_agents(agent_type='ETF')
@@ -154,13 +161,9 @@ if __name__ == "__main__":
         print(f"   连接失败: {e}")
         exit(1)
 
-    # 创建 Agent 实例
+    # 直接创建实例，无需传递 db_config
     print("\n2. 创建 DynamicFOFAgent...")
-    agent = DynamicFOFAgent(
-        top_n=3,
-        lookback_days=30,
-        db_config=db_config
-    )
+    agent = DynamicFOFAgent(top_n=3, lookback_days=30)
 
     print(f"   Agent 名称: {agent.name}")
     print(f"   Agent 类型: {agent.agent_type}")

@@ -38,9 +38,17 @@ ETF Agent 直接投资 ETF，需要实现 `load_current_data` 和 `get_current_h
 from cufel_arena_agent import ETFAgentBase
 from quantchdb import ClickHouseDatabase
 
+DB_CONFIG = {
+    'host': os.getenv('DB_HOST_Server'),
+    'port': int(os.getenv('DB_PORT_Server')),
+    'user': os.getenv('DB_USER_Server'),
+    'password': os.getenv('DB_PASSWORD_Server'),
+    'database': os.getenv('DB_DATABASE_Server')
+}
+
 class MyETFAgent(ETFAgentBase):
-    def __init__(self, db_config=None, **kwargs):
-        super().__init__(name="MyETFAgent", db_config=db_config, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(name="MyETFAgent", db_config=DB_CONFIG, **kwargs)
 
     def load_current_data(self, curr_date: str):
         db = ClickHouseDatabase(config=self.db_config)
@@ -60,9 +68,17 @@ FOF Agent 投资于其他 ETF Agents，可以动态筛选目标：
 ```python
 from cufel_arena_agent import FOFAgentBase
 
+DB_CONFIG = {
+    'host': os.getenv('POSTGRES_HOST'),
+    'port': int(os.getenv('POSTGRES_PORT')),
+    'user': os.getenv('POSTGRES_USER'),
+    'password': os.getenv('POSTGRES_PASSWORD'),
+    'database': os.getenv('POSTGRES_DB')
+}
+
 class MyFOFAgent(FOFAgentBase):
-    def __init__(self, top_n=3, db_config=None, **kwargs):
-        super().__init__(name="MyFOFAgent", db_config=db_config, **kwargs)
+    def __init__(self, top_n=3, **kwargs):
+        super().__init__(name="MyFOFAgent", db_config=DB_CONFIG, **kwargs)
         self.top_n = top_n
 
     def load_current_data(self, curr_date: str):
