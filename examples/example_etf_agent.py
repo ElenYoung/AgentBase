@@ -45,7 +45,8 @@ class EqualWeightETFAgent(ETFAgentBase):
 
     def get_current_holdings(self, curr_date: str, feedback: str = None, theta: float=None):
         """
-        获取当前日期的持仓
+        获取当前日期的持仓；建议设计持仓缓存机制，将跑完的持仓存储在一个文件内，下次获取改日持仓时直接从文件中读取，避免重复计算相同日期的持仓
+
 
         Parameters
         ----------

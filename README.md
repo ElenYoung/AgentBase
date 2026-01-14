@@ -85,7 +85,8 @@ class MyFOFAgent(FOFAgentBase):
 | 方法 | 说明 |
 |------|------|
 | `load_current_data(curr_date)` | 加载当前日期所需的数据 |
-| `get_current_holdings(curr_date, feedback=None, theta=None)` | 返回当前日期的持仓 |
+| `get_current_holdings(curr_date, feedback=None, theta=None)` | 返回当前日期的持仓；建议设计持仓缓存机制，将跑完的持仓存储在一个文件内，下次获取改日持仓时直接从文件中读取，避免重复计算相同日期的持仓
+ |
 
 **如果希望做日内交易优化**，必须要定义 `get_current_holdings_intraday(curr_datetime, feedback=None, theta=None)`。`curr_datetime`需要为字符串类型，例如"2023-01-15 10:00:00"。
 

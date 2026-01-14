@@ -46,7 +46,8 @@ class DynamicFOFAgent(FOFAgentBase):
 
     def load_current_data(self, curr_date: str):
         """
-        加载当前日期的数据
+        加载当前日期的数据；建议设计持仓缓存机制，将跑完的持仓存储在一个文件内，下次获取改日持仓时直接从文件中读取，避免重复计算相同日期的持仓
+
 
         动态获取所有 ETF Agents 的历史收益率数据
         """
